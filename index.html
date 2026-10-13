@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academic Integrity Decision Tree | SCC</title>
+<style>
+  :root {
+    --accent: #016450;
+    --accent-dark: #014637;
+    --accent-tint: #E7F2EF;
+    --ink: #1F2A2E;
+    --muted: #4F5B60;
+    --rule: #D5DCDC;
+    --card: #FFFFFF;
+    --page: #F6F8F7;
+    --warn-tint: #FFF6E0;
+    --warn-edge: #C98A12;
+    --focus: #1A5FB4;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: "Lato Extended", Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 40px; }
+
+  header.tool-head { margin-bottom: 20px; }
+  .kicker {
+    font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 4px;
+  }
+  header.tool-head h1 { font-size: 28px; line-height: 1.2; margin: 0 0 8px; }
+  header.tool-head p { margin: 0; color: var(--muted); }
+
+  .card {
+    background: var(--card); border: 1px solid var(--rule); border-radius: 10px;
+    padding: 24px;
+  }
+  @media (max-width: 520px) { .card { padding: 18px 16px; } }
+
+  .step-head { margin: 0 0 12px; font-size: 22px; line-height: 1.3; }
+  .step-head:focus { outline: none; }
+  .step-head:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; border-radius: 4px; }
+  .help { color: var(--muted); margin: 0 0 16px; }
+  .body p { margin: 0 0 14px; }
+  .body ul, .body ol { margin: 0 0 14px; padding-left: 1.4em; }
+  .body li { margin-bottom: 6px; }
+
+  .note {
+    background: var(--accent-tint); border-left: 4px solid var(--accent);
+    padding: 12px 14px; margin: 0 0 18px; border-radius: 0;
+  }
+  .note p { margin: 0; }
+
+  .options { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .opt {
+    display: block; width: 100%; text-align: left;
+    font: inherit; color: var(--ink); background: var(--card);
+    border: 1.5px solid var(--rule); border-radius: 8px;
+    padding: 12px 16px; cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .opt:hover { border-color: var(--accent); background: var(--accent-tint); }
+  .opt:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .opt .hint { display: block; font-size: 15px; color: var(--muted); margin-top: 2px; }
+
+  label.field-label { display: block; font-weight: 700; margin-bottom: 6px; }
+  select {
+    width: 100%; font: inherit; padding: 10px 12px; border: 1.5px solid var(--rule);
+    border-radius: 8px; background: var(--card); color: var(--ink);
+  }
+  select:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .error { color: #A1260D; font-size: 15px; margin: 6px 0 0; }
+
+  .btn {
+    font: inherit; font-weight: 700; cursor: pointer;
+    border-radius: 8px; padding: 10px 18px; border: 2px solid var(--accent);
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+  .btn-secondary { background: var(--card); color: var(--accent); }
+  .btn-secondary:hover { background: var(--accent-tint); }
+  .btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+  .tip {
+    border: 1.5px solid var(--accent); border-radius: 10px; margin: 20px 0 0; overflow: hidden;
+  }
+  .tip h3 {
+    margin: 0; background: var(--accent); color: #fff; font-size: 14px; letter-spacing: .06em;
+    text-transform: uppercase; padding: 8px 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .tip h3 svg { flex: none; }
+  .tip .tip-body { padding: 12px 14px; }
+  .tip .tip-body p { margin: 0 0 8px; }
+  .tip .tip-body p:last-child { margin-bottom: 0; }
+  .tip.caution { border-color: var(--warn-edge); }
+  .tip.caution h3 { background: var(--warn-tint); color: #6B4500; }
+
+  .template { margin: 20px 0 0; border: 1px solid var(--rule); border-radius: 10px; }
+  .template-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 10px 14px; border-bottom: 1px solid var(--rule); background: var(--page);
+    border-radius: 10px 10px 0 0;
+  }
+  .template-head h3 { margin: 0; font-size: 16px; }
+  .template-text { padding: 14px; font-size: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .body, .tip-body, .help, .summary dd { overflow-wrap: anywhere; }
+  .copy-status { font-size: 14px; color: var(--accent); min-height: 1em; }
+
+  nav.step-nav {
+    display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .link-btn {
+    font: inherit; font-size: 15px; background: none; border: 0; padding: 6px 2px;
+    color: var(--accent); text-decoration: underline; cursor: pointer;
+  }
+  .link-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
+
+  details.trail { margin-top: 18px; font-size: 15px; color: var(--muted); }
+  details.trail summary { cursor: pointer; color: var(--accent); }
+  details.trail summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .summary { margin-top: 24px; border-top: 1px solid var(--rule); padding-top: 18px; }
+  .summary h3 { margin: 0 0 8px; font-size: 18px; }
+  .summary dl { margin: 0; display: grid; grid-template-columns: minmax(140px, 34%) 1fr; gap: 6px 16px; font-size: 15px; }
+  .summary dt { font-weight: 700; }
+  .summary dd { margin: 0; }
+  @media (max-width: 520px) { .summary dl { grid-template-columns: 1fr; gap: 2px; } .summary dd { margin-bottom: 8px; } }
+  .print-only { display: none; }
+
+  a { color: var(--accent); }
+  a:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+  footer.tool-foot { margin-top: 20px; font-size: 14px; color: var(--muted); text-align: center; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  @media print {
+    body { background: #fff; font-size: 12pt; }
+    .wrap { padding: 0; max-width: none; }
+    header.tool-head p, nav.step-nav, .actions, .template, details.trail, footer.tool-foot, .no-print { display: none !important; }
+    .card { border: 0; padding: 0; }
+    .print-only { display: block; }
+    .tip { break-inside: avoid; }
+    a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 10pt; color: #444; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="tool-head">
+    <p class="kicker" id="kicker"></p>
+    <h1 id="tool-title"></h1>
+    <p id="tool-intro"></p>
+  </header>
+
+  <main id="app" class="card" aria-live="off"></main>
+
+  <footer class="tool-foot" id="tool-foot"></footer>
+</div>
+
+<script>
+/* =====================================================================
+   CONTENT
+   ---------------------------------------------------------------------
+   Everything faculty read lives in this section. You can edit any of it
+   directly in GitHub without touching the code below.
+
+   - Text fields accept simple HTML (<p>, <strong>, <em>, <a>, <ul>, <ol>).
+   - "next" is the id of the step to go to. When the destination depends
+     on earlier answers, "next" is a list of rules checked in order:
+         { when: { offense: "second" }, go: "end-escalate" }
+     A rule with no "when" is the fallback.
+   - "when" matches saved answers. A list means "any of these":
+         { offense: ["second", "third"] }
+   ===================================================================== */
+
+const SETTINGS = {
+  kicker: "Salem Community College · Academic Technology",
+  title: "Academic Integrity Decision Tree",
+  intro: "Think a student used AI on an assignment? Start here. A few quick questions will walk you through next steps based on how the concern came up, the student's history, and your course policy. Nothing you enter is saved or sent anywhere; when you're done, you can print or save a summary for your own records.",
+  footer: "Questions about AI in your course? Contact Lauren Schwartz, Instructional Development Specialist, at <a href=\"mailto:lschwartz@salemcc.edu\">lschwartz@salemcc.edu</a>.",
+
+  // Courses in the GPTZero pilot. Add or remove course codes here.
+  pilotCourses: ["ENG101", "ENG102"],
+
+  links: {
+    calendly: "https://calendly.com/lbschwartz/ai-plagiarism-assistance",
+    email: "mailto:lschwartz@salemcc.edu",
+    // The Academic Integrity Occurrence Report, stored in the same GitHub repo as this page.
+    reportForm: "Academic_Integrity_Occurrence_Report.pdf",
+    integrityGuidelines: "https://www.salemcc.edu/academic-standards",
+    catalog: "https://www.salemcc.edu/programs/catalogs",
+    gptzeroAuthorship: "https://gptzero.me/authorship",
+    sampleSyllabi: "https://salemcc.instructure.com/courses/515/pages/create-your-syllabus-addendum"
+  }
+};
+
+const L = SETTINGS.links;
+
+// Shown at the bottom of every endpoint.
+const CONTACT_TIP = {
+  title: "SCC Teaching Tip",
+  body: `<p>Not sure how to proceed, or want to talk through a specific situation before you act? Contact Instructional Development Specialist Lauren Schwartz at <a href="${L.email}">lschwartz@salemcc.edu</a>, or <a href="${L.calendly}" target="_blank" rel="noopener">grab some time on her calendar</a>. It's a big topic with a lot of moving pieces, and we're all working to figure it out together.</p>`
+};
+
+// The boilerplate message offered on the "Have a conversation" step.
+const STUDENT_MESSAGE = `Hi, [Student] — after careful examination, large parts of your work match patterns common to AI-generated material. Please review the course AI policy in the syllabus addendum, as well as the college academic integrity policy in the college handbook (${L.catalog}). If you did craft your work in its entirety, please submit a GPTZero report of your writing (instructions: ${L.gptzeroAuthorship}), a working draft, or notes for review. If you ran your writing through a polishing tool like Grammarly, please send along the original draft — this will not be graded and is just for authorship purposes. You may receive a placeholder grade of zero while original authorship is determined; this may be reversed, or you may be asked to resubmit your assignment. I know this can be stressful, so I'm happy to schedule a time to meet to discuss your work. Please contact me to set this up, or message me any questions, comments, or concerns you might have.`;
+
+const NODES = {
+
+  /* ---------- Start ---------- */
+  "course": {
+    type: "select",
+    saveAs: "course",
+    summaryLabel: "Course",
+    title: "Which course is this for?",
+    help: "Start typing the course code to jump to it in the list.",
+    fieldLabel: "Course",
+    next: "how"
+  },
+
+  /* ---------- Q1 ---------- */
+  "how": {
+    type: "question",
+    saveAs: "how",
+    summaryLabel: "How the concern came up",
+    title: "How did you determine the student likely used AI?",
+    variants: [
+      { when: { detectionRedirect: true },
+        title: "Setting the detection result aside, were you able to determine or suspect AI use in any of these other ways?" }
+    ],
+    options: [
+      { label: "An AI detection tool flagged it", value: "detection",
+        hideWhen: { detectionRedirect: true },
+        next: [ { when: { pilot: true }, go: "detect-pilot" }, { go: "detect-general" } ] },
+      { label: "I can just tell", hint: "Something about the work feels off.", value: "vibes", next: "based-on" },
+      { label: "The student told me they used it", value: "admission", next: "offense" },
+      { label: "I have something concrete", hint: "A comparison to the student's earlier writing samples, my own investigation, or other evidence I can point to.", value: "concrete", next: "offense" }
+    ]
+  },
+
+  "detect-pilot": {
+    type: "info",
+    title: "A note for the GPTZero pilot",
+    body: `
+      <p>Since you're teaching in the GPTZero pilot this semester, your GPTZero report can be part of the picture. Just keep in mind that it's a reason to look closer and talk with the student, not a verdict on its own. Even the most accurate detectors produce false positives, and those fall hardest on multilingual and neurodivergent writers.</p>
+      <p>A few things worth checking in <strong>View Full Analysis</strong> from SpeedGrader:</p>
+      <ul>
+        <li><strong>The hallucination check.</strong> Made-up sources and claims their sources don't support are concrete and checkable, and much easier to discuss with a student than a percentage.</li>
+        <li><strong>How much of the work is flagged.</strong> Large parts of a paper matching AI patterns is a different situation from a sentence or two.</li>
+      </ul>
+      <p>When you talk with the student, you can share the report with them directly, either by link (<strong>Share</strong>) or as a PDF (<strong>Export</strong>).</p>
+      <p>And please let us know how it went: was GPTZero helpful here? Your feedback is shaping where we go next with AI at SCC.</p>`,
+    buttons: [ { label: "Continue", next: "offense" } ]
+  },
+
+  "detect-general": {
+    type: "info",
+    title: "About AI detection tools",
+    body: `<p>As of June 2026, SCC does not have an authorized partnership with an AI detection platform. Results from unauthorized scanning tools cannot be used for determination of AI use in student work and may raise student data privacy concerns.</p>`,
+    buttons: [ { label: "See the other options", next: "how", set: { detectionRedirect: true } } ]
+  },
+
+  "based-on": {
+    type: "question",
+    saveAs: "basedOn",
+    summaryLabel: "What stood out",
+    title: "Based on what?",
+    help: "You know your students and your course in a way no detection tool does. The more specific you can be about what stood out, the more productive your conversation with the student will be.",
+    options: [
+      { label: "It's way too polished", value: "polished", next: "offense" },
+      { label: "The vocabulary doesn't match the student's previous work", value: "vocab", next: "offense" },
+      { label: "It includes examples or details we never covered in class", hint: "For example, analyzing the entire <em>Divine Comedy</em> when the class only read <em>Inferno</em>. AI doesn't know what you actually covered.", value: "details", next: "offense" },
+      { label: "The sentence structure and phrasing read like AI", value: "phrasing", next: "phrasing-caveat" }
+    ]
+  },
+
+  "phrasing-caveat": {
+    type: "info",
+    title: "A word of caution about phrasing",
+    caution: true,
+    body: `
+      <p>This is the one to be most careful with. The patterns people associate with AI writing (em dashes, tidy five-paragraph structure, balanced pros and cons, polished transitions) are patterns AI learned from human writers. Plenty of students write this way on their own, and multilingual and neurodivergent students' authentic writing in particular can read as statistically "AI-like."</p>
+      <p>Phrasing alone isn't enough to act on. It is enough to start a conversation.</p>`,
+    buttons: [ { label: "Continue", next: "end-conversation" } ]
+  },
+
+  /* ---------- Q2 ---------- */
+  "offense": {
+    type: "question",
+    saveAs: "offense",
+    summaryLabel: "Offense",
+    title: "Is this the student's first offense?",
+    help: "If you're not sure, check the Notes tab in Dropout Detective. Notes and alerts stay with the student from semester to semester, so you can see whether another instructor has flagged something before.",
+    options: [
+      { label: "Yes", value: "first", next: "raised" },
+      { label: "I think so, but I'm not sure", value: "first", next: "raised" },
+      { label: "No, this is the second time", value: "second", next: "raised" },
+      { label: "No, this is at least the third time, or there's an established pattern", value: "third", next: "raised" }
+    ]
+  },
+
+  /* ---------- Talking to the student ---------- */
+  "raised": {
+    type: "question",
+    saveAs: "raised",
+    summaryLabel: "Raised concerns with the student",
+    title: "Have you raised your concerns with the student?",
+    variants: [
+      { when: { offense: ["second", "third"] },
+        note: "<p>If you talked with the student about AI use during a previous violation, that counts. You can answer <strong>Yes</strong>.</p>" }
+    ],
+    options: [
+      { label: "Yes", value: "yes", next: "response" },
+      { label: "No, not yet", value: "no", next: "end-conversation" }
+    ]
+  },
+
+  "response": {
+    type: "question",
+    saveAs: "response",
+    summaryLabel: "Student's response",
+    title: "How did the student respond?",
+    options: [
+      { label: "They admitted to using AI", value: "admitted" },
+      { label: "They denied using AI", value: "denied" },
+      { label: "They said they used an assistive tool like Grammarly or Quillbot", value: "assistive" },
+      { label: "They didn't respond", hint: "If it's only been a day or two, consider giving them a little more time, or following up through Canvas messages or email.", value: "noresponse" }
+    ],
+    next: [
+      { when: { offense: "second" }, go: "end-escalate" },
+      { when: { offense: "third" }, go: "end-report" },
+      { when: { response: "denied" }, go: "proof" },
+      { go: "policy" }
+    ]
+  },
+
+  /* ---------- First-offense branches ---------- */
+  "proof": {
+    type: "question",
+    saveAs: "proof",
+    summaryLabel: "Proof of authorship",
+    title: "Has the student offered proof that they did the work themselves?",
+    help: `If you haven't asked yet, it's worth doing before you go any further. A draft, notes, or a <a href="${L.gptzeroAuthorship}" target="_blank" rel="noopener">GPTZero writing report</a> (a real-time replay of a document's creation) can often settle the question quickly.`,
+    options: [
+      { label: "Yes, a document or version history that shows the draft developing", value: "history", next: "end-discretion" },
+      { label: "Yes, notes or other process documentation", value: "notes", next: "end-discretion" },
+      { label: "Yes, a real-time writing report (GPTZero, Grammarly, etc.)", value: "report", next: "end-discretion" },
+      { label: "No", value: "none", next: "policy" }
+    ]
+  },
+
+  "policy": {
+    type: "question",
+    saveAs: "policy",
+    summaryLabel: "Course AI policy",
+    title: "Do you have an AI policy in your course syllabus or for this assignment?",
+    tip: {
+      title: "SCC Teaching Tip",
+      body: `<p>Don't have one yet? It's worth adding one to your syllabus addendum before next semester. A clear course policy is what turns AI use into something you can actually address. The sample addenda on the <a href="${L.sampleSyllabi}" target="_blank" rel="noopener">Sample Syllabuses &amp; Schedules</a> page include restrictive, tiered, and integrative policy language you can borrow from.</p>`
+    },
+    options: [
+      { label: "Yes, AI of any kind is prohibited", value: "prohibited" },
+      { label: "Yes, AI use requires disclosure", value: "disclosure" },
+      { label: "Yes, AI can only be used for brainstorming or drafting", value: "limited" },
+      { label: "No", value: "none" }
+    ],
+    next: [
+      { when: { response: "admitted" }, go: "end-learning" },
+      { when: { response: "assistive" }, go: "assistive" },
+      { when: { policy: "none" }, go: "end-learning" },
+      { go: "outcome" }
+    ]
+  },
+
+  "assistive": {
+    type: "question",
+    saveAs: "assistiveLanguage",
+    summaryLabel: "Language on assistive tools",
+    title: "Does your syllabus or assignment include language that prohibits assistive AI tools like Grammarly and Quillbot?",
+    help: "If the student ran their writing through a polishing tool, ask for the original draft. It isn't for a grade, just for authorship.",
+    options: [
+      { label: "Yes", value: "yes", next: "outcome" },
+      { label: "No", value: "no", next: "end-discretion" }
+    ]
+  },
+
+  "outcome": {
+    type: "question",
+    saveAs: "outcome",
+    summaryLabel: "Result you want",
+    title: "What result do you want from this?",
+    options: [
+      { label: "I want the student to learn from this and understand why this use of AI isn't allowed", value: "learn", next: "end-learning" },
+      { label: "I'd like to bring in the student's allies to approach this beyond my classroom", value: "allies", next: "end-escalate" },
+      { label: "My course policy is firm, and I'd like to submit a violation report", value: "report", next: "end-report" }
+    ]
+  },
+
+  /* ---------- Endpoints ---------- */
+  "end-conversation": {
+    type: "end",
+    summaryLabel: "Outcome",
+    outcomeLabel: "Have a conversation with the student",
+    title: "Have a conversation with the student",
+    body: `
+      <p>The most productive first move is a conversation, not an accusation. Ask the student to walk you through their process: what did they write first, where did they get stuck, and what changed between the draft and the final version? Genuine authorship shows in the details. Students who wrote the paper can usually answer these questions, and students who didn't often can't.</p>
+      <p>It's also your chance to find out <em>why</em>. Unclear assignment instructions, a time crunch, low motivation, or a feeling that "AI can do it better" each point to a different way to scaffold the student's learning, and to help them see why AI can't substitute for the work you need them to do.</p>`,
+    template: { title: "Message template you can adapt", text: STUDENT_MESSAGE },
+    buttons: [
+      { label: "I've talked with the student — continue", next: "response", style: "primary",
+        showWhen: { offense: ["first", "second", "third"] },
+        set: { raised: "yes" },
+        trail: { label: "Raised concerns with the student", answer: "Yes, after using this tool" } }
+    ]
+  },
+
+  "end-learning": {
+    type: "end",
+    summaryLabel: "Outcome",
+    outcomeLabel: "Discuss the learning opportunity / consider resubmission",
+    title: "Make it a learning opportunity",
+    body: `
+      <p>Sit down with the student and talk about what happened, and why it matters. The point of the assignment is the thinking it asks them to do. When AI does that thinking for them, the learning the assignment was designed to produce doesn't happen.</p>
+      <p>Consider allowing a resubmission. A student who goes back and does the work themselves gets what the assignment was meant to give them in the first place, and it tells them you care more about their learning than about catching them.</p>
+      <p>The generative/assistive distinction can help frame the conversation: the difference isn't the tool, it's whether the student did the intellectual work. That's a principle students can actually internalize, and one that will still apply the next time they're tempted.</p>`,
+    tips: [
+      { showWhen: { policy: "none" },
+        title: "Before next semester",
+        body: `<p>Without a course AI policy, there isn't much you can enforce, which is part of why this lands as a conversation. Adding a policy to your syllabus addendum gives you and your students clear terms to work from. The <a href="${L.sampleSyllabi}" target="_blank" rel="noopener">Sample Syllabuses &amp; Schedules</a> page has policy language you can adapt.</p>` }
+    ]
+  },
+
+  "end-escalate": {
+    type: "end",
+    summaryLabel: "Outcome",
+    outcomeLabel: "Escalate to Dropout Detective / advisor",
+    title: "Bring in the student's allies",
+    body: `
+      <p>Submit an Academic Alert through Dropout Detective. The student's advisor and other allies will be notified, so they can follow up and the pattern is visible beyond your classroom.</p>
+      <ol>
+        <li>In your Canvas course, select <strong>Dropout Detective</strong> from the course menu. (Don't see it? Go to <strong>Settings &gt; Navigation</strong>, drag Dropout Detective into the enabled list, and select <strong>Save</strong>.)</li>
+        <li>Select the student, then open the <strong>Notes</strong> tab.</li>
+        <li>Check <strong>Activate Alert</strong> and write a short note describing your concern and what you've already done about it.</li>
+        <li>Choose the <strong>Academic Dishonesty/Plagiarism</strong> tag, then select <strong>Save</strong>.</li>
+      </ol>
+      <p>The student won't see your note. Their advisor will typically reach out to them within 24 to 48 hours and will add updates in the Notes tab, so check back there.</p>`,
+    buttonsIntro: "<p>At your discretion, you can also submit an academic integrity report.</p>",
+    buttons: [ { label: "I'd like to report the student for a violation", next: "end-report", style: "secondary" } ]
+  },
+
+  "end-report": {
+    type: "end",
+    summaryLabel: "Outcome",
+    outcomeLabel: "Submit an academic integrity report",
+    title: "Submit an academic integrity report",
+    body: `
+      <p>Reports go through the <a href="${L.reportForm}" download>Academic Integrity Occurrence Report</a> (fillable PDF).</p>
+      <ol>
+        <li>Fill in the student's name, the date of the occurrence, and your name.</li>
+        <li>Under <strong>Type of Infraction</strong>, the form doesn't list AI, so check <strong>Other</strong> and write in "unauthorized use of AI."</li>
+        <li>Describe what happened, and what you did about it, including any penalty.</li>
+        <li>Meet with the student, and have both of you sign. The student's signature only acknowledges that the meeting took place, not that they agree. A student who disagrees can follow the grievance policy in the Student Handbook.</li>
+        <li>Attach supporting documents: your summary from this tool (use <strong>Print or save summary</strong> below), the assignment, drafts, a GPTZero report if you have one, and your correspondence with the student.</li>
+        <li>Return the form to an Officer of Academic Affairs. A copy is kept in the student's file.</li>
+      </ol>
+      <p>Before you submit, review the Penalties and Procedures section of the <a href="${L.integrityGuidelines}" target="_blank" rel="noopener">SCC Academic Honesty &amp; Integrity Guidelines</a>.</p>`
+  },
+
+  "end-discretion": {
+    type: "end",
+    summaryLabel: "Outcome",
+    outcomeLabel: "Instructor discretion",
+    title: "Use your discretion",
+    body: `
+      <p>The student has shown their process, and a draft history, process notes, or a writing report is stronger evidence than any detector. In most cases, that settles the authorship question.</p>
+      <p>How you handle it from here is your call. If something still doesn't sit right, a follow-up conversation about the work itself (how they built the argument, what they'd change next time) is a low-stakes way to close the loop. Either way, it's a good moment to make sure the student knows what your AI policy allows going forward.</p>`,
+    variants: [
+      { when: { response: "assistive" },
+        body: `
+          <p>This is one of the grayest corners of AI in the classroom. Tools like Grammarly and Quillbot can lightly polish a student's writing or rewrite it wholesale, and without syllabus language that addresses them, there's no clear line the student crossed.</p>
+          <p>Ask for the original draft, not for a grade, just for authorship. If the thinking is the student's own, treat this as a chance to talk about where assistive use ends and generative use begins. Then consider adding language about assistive tools to your syllabus addendum before next semester.</p>` }
+    ]
+  }
+};
+
+/* ---------- Course list (from the Fall 2026 textbook list) ---------- */
+const COURSES = [
+["ACC131","Principles of Accounting I"],["ACC132","Principles of Accounting II"],["ACC211","Intermediate Accounting I"],["AGR101","Introduction to Agricultural Science"],["AGR121","Plant Science"],["ART101","Art Appreciation"],["ART104","Drawing"],["ART105","Painting"],["ART115","Two Dimensional Design"],["ART116","Three-Dimensional Design"],["ART205","Basic Digital Photography"],["ART225","Portfolio and Professional Practices"],["BIO101","General Biology I"],["BIO103","Environmental Science I"],["BIO121","Foundations of Biology"],["BIO150","Fundamentals of A&P"],["BIO211","Principles of Microbiology"],["BIO213","General Ecology"],["BIO220","Human Anatomy & Physiology I"],["BIO221","Human Anatomy & Physiology II"],["BUS102","Introduction to Business"],["BUS205","Legal Environment of Business"],["BUS212","Principles of Marketing"],["CGA101","Introduction to Computer Art"],["CGA122","Introduction to Electronic Publishing"],["CGA141","Web Design"],["CHM101","College Chemistry I"],["CHM130","Basic and Organic Chemistry"],["CHM201","Organic Chemistry I"],["CRJ101","Introduction to Criminal Justice"],["CRJ103","Principles of Law Enforcement"],["CRJ208","Criminal and Correctional Law"],["CSC115","Computer Applications"],["CSC131","Intro to Computer Hardware and Operation"],["CSC251","Intro to Java Programming"],["ECO201","Macroeconomics"],["ECO202","Microeconomics"],["EDU101","Introduction to the Teaching Profession"],["ENG101","English Composition I"],["ENG102","English Composition II"],["ENG202","Introduction to Speech Communication"],["ENS160","Engineering Clinic I"],["ENS221","Engineering Statistics"],["ETH200","Ethics in the Modern World"],["FNA101","Art History I"],["FNA110","Creative Prin. of Flameworked Glass"],["FNA120","Cold Glass Assemblage"],["FNA150","Glassblowing I"],["FNA210","Sculptural Approaches"],["FNA221","Glass Kiln Techniques"],["FNA222","Glass Kiln Casting"],["FNA250","Glassblowing II"],["GEO101","World Regional Geography"],["HIS161","World History I"],["HIS162","World History II"],["HIS201","United States History I"],["HPE102","Health and Wellness"],["HPE107","Fitness Concepts"],["HPE114","Weight Training"],["HPE122","Pilates"],["HPE140","Sport Management"],["HPE141","Principles and Science of Coaching"],["HPE145","Sports Psychology"],["HSC103","Introduction to the Health Sciences"],["HSC150","Pharmacology for Health Services"],["HSC168","Nutrition"],["HSC200","Standard First Aid and CPR"],["HSC211","Medical Terminology"],["HUM101","Introduction to the Humanities"],["HUM125","The Creative Process"],["LPN120","Practical Nursing I"],["MAT037","College Algebra Enhancement"],["MAT092","Pre-Algebra"],["MAT094","Contemporary Math Enhancement"],["MAT134","Contemporary Mathematics"],["MAT137","College Algebra"],["MAT153","Pre-Calculus"],["MAT170","Discrete Mathematics"],["MAT201","Statistics"],["MAT231","Calculus I"],["MAT232","Calculus II"],["MAT233","Calculus III"],["MUS101","Music Appreciation"],["NET111","Mathematics for Energy Technicians"],["NET115","Mechanical Sciences"],["NET211","Heat Transfer and Fluid Flow"],["NET213","Instrumentation and Control I"],["NET251","Maintenance Electrical Technicians"],["NET261","Nuclear Plant Systems & Components – PWR"],["NUR230","Nursing Concepts in Global Health and Diversity"],["NUR231","Professional Nursing I"],["PHL101","Introduction to Philosophy"],["PHY101","Physics I"],["PHY221","Calculus-Based Physics I"],["POL101","Introduction to Political Science"],["POL102","American Government"],["POL221","Public Administration"],["PSY101","General Psychology"],["PSY111","Human Growth and Development"],["PSY212","Educational Psychology and Assessment"],["SCO113","College Success Strategies"],["SGT113","Introduction to Scientific Glass"],["SGT204","Equipment Design and Fabrication"],["SGT205","Plasma Design"],["SGT206","Basic Quartz Glass Fabrication"],["SGT210","Advanced Fabrication I"],["SOC101","Introduction to Sociology"],["SOC121","Introduction to Social Services"],["SOC201","The Family"]
+];
+const OTHER_COURSE = { code: "OTHER", label: "Other / not listed" };
+
+/* =====================================================================
+   ENGINE — no need to edit below this line
+   ===================================================================== */
+(function () {
+  const app = document.getElementById("app");
+  document.getElementById("kicker").textContent = SETTINGS.kicker;
+  document.getElementById("tool-title").textContent = SETTINGS.title;
+  document.getElementById("tool-intro").textContent = SETTINGS.intro;
+  document.getElementById("tool-foot").innerHTML = SETTINGS.footer;
+
+  const START = "course";
+  let state = freshState();
+  let history = [];
+
+  function freshState() { return { current: START, answers: {}, trail: [] }; }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  function matches(when) {
+    if (!when) return true;
+    return Object.keys(when).every(function (k) {
+      const want = when[k], have = state.answers[k];
+      if (Array.isArray(want)) return want.indexOf(have) !== -1;
+      if (want === true) return have === true;
+      if (want === false) return have !== true;
+      return have === want;
+    });
+  }
+
+  function resolveNext(next) {
+    if (!next) return null;
+    if (typeof next === "string") return next;
+    for (let i = 0; i < next.length; i++) if (matches(next[i].when)) return next[i].go;
+    return null;
+  }
+
+  function withVariant(node) {
+    const out = Object.assign({}, node);
+    (node.variants || []).some(function (v) {
+      if (matches(v.when)) { Object.keys(v).forEach(function (k) { if (k !== "when") out[k] = v[k]; }); return true; }
+      return false;
+    });
+    return out;
+  }
+
+  // Records the current state for Back, applies the answer, then moves on.
+  // If nextId is null, the mutate function sets state.__next instead.
+  function go(nextId, mutate) {
+    history.push(clone(state));
+    if (mutate) mutate();
+    if (nextId !== null) state.__next = nextId;
+    render(true);
+  }
+
+  function back() {
+    if (!history.length) return;
+    state = history.pop();
+    render(true);
+  }
+
+  function restart() {
+    state = freshState();
+    history = [];
+    render(true);
+  }
+
+  function setTrail(nodeId, label, answer) {
+    state.trail = state.trail.filter(function (t) { return t.label !== label; });
+    state.trail.push({ node: nodeId, label: label, answer: answer });
+  }
+
+  function el(tag, attrs, html) {
+    const e = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === "class") e.className = attrs[k];
+      else if (k.indexOf("on") === 0) e.addEventListener(k.slice(2), attrs[k]);
+      else e.setAttribute(k, attrs[k]);
+    });
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+
+  const LEAF = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>';
+  const ALERT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>';
+
+  function tipBox(tip, caution) {
+    const box = el("aside", { class: "tip" + (caution ? " caution" : ""), "aria-label": tip.title });
+    box.appendChild(el("h3", null, (caution ? ALERT : LEAF) + "<span>" + tip.title + "</span>"));
+    box.appendChild(el("div", { class: "tip-body" }, tip.body));
+    return box;
+  }
+
+  function heading(text) {
+    return el("h2", { class: "step-head", id: "step-head", tabindex: "-1" }, text);
+  }
+
+  function renderSelect(node) {
+    const frag = document.createDocumentFragment();
+    frag.appendChild(heading(node.title));
+    if (node.help) frag.appendChild(el("p", { class: "help", id: "sel-help" }, node.help));
+    const form = el("form", { novalidate: "" });
+    form.appendChild(el("label", { class: "field-label", for: "course-select" }, node.fieldLabel));
+    const sel = el("select", { id: "course-select", "aria-describedby": "sel-help sel-error" });
+    sel.appendChild(el("option", { value: "" }, "Choose a course"));
+    COURSES.forEach(function (c) {
+      const o = el("option", { value: c[0] }); o.textContent = c[0] + " – " + c[1]; sel.appendChild(o);
+    });
+    const other = el("option", { value: OTHER_COURSE.code }); other.textContent = OTHER_COURSE.label; sel.appendChild(other);
+    if (state.answers.course) sel.value = state.answers.course;
+    form.appendChild(sel);
+    const err = el("p", { class: "error", id: "sel-error", role: "alert" });
+    form.appendChild(err);
+    sel.addEventListener("change", function () { err.textContent = ""; sel.removeAttribute("aria-invalid"); });
+    const actions = el("div", { class: "actions" });
+    actions.appendChild(el("button", { type: "submit", class: "btn btn-primary" }, "Continue"));
+    form.appendChild(actions);
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!sel.value) { err.textContent = "Choose a course first."; sel.setAttribute("aria-invalid", "true"); sel.focus(); return; }
+      const code = sel.value;
+      const label = sel.options[sel.selectedIndex].textContent;
+      go(resolveNext(node.next), function () {
+        state.answers.course = code;
+        state.answers.pilot = SETTINGS.pilotCourses.indexOf(code) !== -1;
+        setTrail("course", node.summaryLabel, label);
+      });
+    });
+    frag.appendChild(form);
+    return frag;
+  }
+
+  function renderQuestion(node) {
+    const frag = document.createDocumentFragment();
+    frag.appendChild(heading(node.title));
+    if (node.help) frag.appendChild(el("p", { class: "help" }, node.help));
+    if (node.note) frag.appendChild(el("div", { class: "note" }, node.note));
+    const list = el("ul", { class: "options", "aria-labelledby": "step-head" });
+    node.options.forEach(function (opt) {
+      if (opt.showWhen && !matches(opt.showWhen)) return;
+      if (opt.hideWhen && matches(opt.hideWhen)) return;
+      const li = el("li");
+      const btn = el("button", { type: "button", class: "opt" },
+        "<span>" + opt.label + "</span>" + (opt.hint ? '<span class="hint">' + opt.hint + "</span>" : ""));
+      btn.addEventListener("click", function () {
+        go(null, function () {
+          if (node.saveAs) state.answers[node.saveAs] = opt.value;
+          if (opt.set) Object.assign(state.answers, opt.set);
+          setTrail(state.current, node.summaryLabel, opt.label);
+          state.__next = resolveNext(opt.next || node.next);
+        });
+      });
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+    frag.appendChild(list);
+    if (node.tip) frag.appendChild(tipBox(node.tip));
+    return frag;
+  }
+
+  function renderButtons(node, container) {
+    const visible = (node.buttons || []).filter(function (b) { return !b.showWhen || matches(b.showWhen); });
+    if (!visible.length) return;
+    if (node.buttonsIntro) container.appendChild(el("div", { class: "body no-print" }, node.buttonsIntro));
+    const actions = el("div", { class: "actions" });
+    visible.forEach(function (b) {
+      const cls = "btn " + (b.style === "secondary" ? "btn-secondary" : "btn-primary");
+      actions.appendChild(el("button", { type: "button", class: cls, onclick: function () {
+        go(null, function () {
+          if (b.set) Object.assign(state.answers, b.set);
+          if (b.trail) setTrail(state.current, b.trail.label, b.trail.answer);
+          state.__next = resolveNext(b.next);
+        });
+      } }, b.label));
+    });
+    container.appendChild(actions);
+  }
+
+  function renderInfo(node) {
+    const frag = document.createDocumentFragment();
+    if (node.caution) {
+      frag.appendChild(heading(node.title));
+      const box = el("aside", { class: "tip caution", "aria-label": "Caution" });
+      box.appendChild(el("h3", null, ALERT + "<span>Proceed with care</span>"));
+      box.appendChild(el("div", { class: "tip-body body" }, node.body));
+      frag.appendChild(box);
+    } else {
+      frag.appendChild(heading(node.title));
+      frag.appendChild(el("div", { class: "body" }, node.body));
+    }
+    const wrap = el("div");
+    renderButtons(node, wrap);
+    frag.appendChild(wrap);
+    return frag;
+  }
+
+  function renderSummary(node) {
+    const box = el("section", { class: "summary", "aria-labelledby": "summary-head" });
+    box.appendChild(el("h3", { id: "summary-head" }, "Your summary"));
+    const d = new Date();
+    box.appendChild(el("p", { class: "print-only" }, "Prepared " + d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }) + " with the SCC Academic Integrity Decision Tree."));
+    const dl = el("dl");
+    state.trail.forEach(function (t) {
+      dl.appendChild(el("dt", null, t.label));
+      dl.appendChild(el("dd", null, t.answer));
+    });
+    dl.appendChild(el("dt", null, node.summaryLabel || "Outcome"));
+    dl.appendChild(el("dd", null, node.outcomeLabel || node.title));
+    box.appendChild(dl);
+    const actions = el("div", { class: "actions" });
+    actions.appendChild(el("button", { type: "button", class: "btn btn-secondary", onclick: function () { window.print(); } }, "Print or save summary"));
+    box.appendChild(actions);
+    return box;
+  }
+
+  function renderEnd(node) {
+    const frag = document.createDocumentFragment();
+    frag.appendChild(heading(node.title));
+    frag.appendChild(el("div", { class: "body" }, node.body));
+    (node.tips || []).forEach(function (t) { if (!t.showWhen || matches(t.showWhen)) frag.appendChild(tipBox(t)); });
+
+    if (node.template) {
+      const tpl = el("section", { class: "template", "aria-labelledby": "tpl-head" });
+      const head = el("div", { class: "template-head" });
+      head.appendChild(el("h3", { id: "tpl-head" }, node.template.title));
+      const status = el("span", { class: "copy-status", role: "status" });
+      const copyBtn = el("button", { type: "button", class: "btn btn-secondary" }, "Copy message");
+      copyBtn.addEventListener("click", function () {
+        copyText(node.template.text).then(function (ok) {
+          status.textContent = ok ? "Copied" : "Couldn't copy. Select the text and copy it manually.";
+        });
+      });
+      const right = el("div", { class: "actions", style: "margin:0;align-items:center" });
+      right.appendChild(status); right.appendChild(copyBtn);
+      head.appendChild(right);
+      tpl.appendChild(head);
+      const txt = el("div", { class: "template-text", id: "tpl-text" });
+      txt.textContent = node.template.text;
+      tpl.appendChild(txt);
+      frag.appendChild(tpl);
+    }
+
+    const wrap = el("div", { class: "no-print" });
+    renderButtons(node, wrap);
+    frag.appendChild(wrap);
+    frag.appendChild(tipBox(CONTACT_TIP));
+    frag.appendChild(renderSummary(node));
+    return frag;
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return fallback(); });
+    }
+    return Promise.resolve(fallback());
+    function fallback() {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "absolute"; ta.style.left = "-9999px";
+        document.body.appendChild(ta); ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        return ok;
+      } catch (e) { return false; }
+    }
+  }
+
+  // Tell screen reader users when a link opens in a new tab.
+  function markNewTabLinks(root) {
+    root.querySelectorAll('a[target="_blank"]').forEach(function (a) {
+      if (a.querySelector(".sr-only")) return;
+      a.insertAdjacentHTML("beforeend", '<span class="sr-only"> (opens in a new tab)</span>');
+    });
+  }
+
+  function renderTrail() {
+    if (!state.trail.length) return null;
+    const det = el("details", { class: "trail" });
+    det.appendChild(el("summary", null, "Your answers so far"));
+    const dl = el("dl", { style: "margin:8px 0 0" });
+    state.trail.forEach(function (t) {
+      dl.appendChild(el("dt", { style: "font-weight:700" }, t.label));
+      dl.appendChild(el("dd", { style: "margin:0 0 6px" }, t.answer));
+    });
+    det.appendChild(dl);
+    return det;
+  }
+
+  function render(moveFocus) {
+    if (state.__next !== undefined) {
+      const n = state.__next; delete state.__next;
+      if (!n || !NODES[n]) { console.error("Missing step:", n); }
+      else state.current = n;
+    }
+    const node = withVariant(NODES[state.current]);
+    app.innerHTML = "";
+    let content;
+    if (node.type === "select") content = renderSelect(node);
+    else if (node.type === "question") content = renderQuestion(node);
+    else if (node.type === "info") content = renderInfo(node);
+    else content = renderEnd(node);
+    app.appendChild(content);
+
+    if (node.type !== "end") { const t = renderTrail(); if (t) app.appendChild(t); }
+
+    const nav = el("nav", { class: "step-nav", "aria-label": "Step navigation" });
+    if (history.length) nav.appendChild(el("button", { type: "button", class: "link-btn", onclick: back }, '<span aria-hidden="true">&larr; </span>Back'));
+    else nav.appendChild(el("span"));
+    if (history.length) nav.appendChild(el("button", { type: "button", class: "link-btn", onclick: restart }, "Start over"));
+    app.appendChild(nav);
+    markNewTabLinks(app);
+
+    if (moveFocus) {
+      window.scrollTo(0, 0);
+      const h = document.getElementById("step-head");
+      if (h) h.focus({ preventScroll: true });
+    }
+  }
+
+  render(false);
+})();
+</script>
+</body>
+</html>
