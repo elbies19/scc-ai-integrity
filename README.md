@@ -8,7 +8,7 @@ An interactive guide for Salem Community College instructors who suspect a stude
 - Submit an academic integrity report
 - Use instructor discretion
 
-**Live tool:** https://elbies19.github.io/ai-integrity-guide/
+**Live tool:** https://elbies19.github.io/scc-ai-integrity/
 
 Questions: Lauren Schwartz, Instructional Development Specialist, lschwartz@salemcc.edu
 
@@ -68,7 +68,7 @@ Answers are saved under each question's `saveAs` name (`how`, `basedOn`, `offens
 In a Canvas page, switch to the HTML editor and add:
 
 ```html
-<iframe src="https://elbies19.github.io/ai-integrity-guide/" title="Academic Integrity Decision Tree" width="100%" height="1000" style="border:none;"></iframe>
+<iframe src="https://elbies19.github.io/scc-ai-integrity/" title="Academic Integrity Decision Tree" width="100%" height="1000" style="border:none;"></iframe>
 ```
 
 Canvas doesn't resize iframes to fit their content, so the height is fixed. 1000px fits the longest step ("Have a conversation with the student," with the message template). Shorter steps will show some empty space below.
